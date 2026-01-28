@@ -1,0 +1,31 @@
+version: "3.8"
+services:
+  postgres:
+    image: postgres:15-alpine
+    env_file:
+      - ./.env
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  users-service:
+    build: ./users-service
+    env_file:
+      - ./users-service/.env
+    depends_on:
+      - postgres
+    ports:
+      - "${USERS_SERVICE_PORT}:4001"
+
+  api-gateway:
+    build: ./api-gateway
+    env_file:
+      - ./api-gateway/.env
+    depends_on:
+      - users-service
+    ports:
+      - "${API_GATEWAY_PORT}:3000"
+
+volumes:
+  postgres_data:
